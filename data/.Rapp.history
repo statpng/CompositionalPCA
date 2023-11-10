@@ -1,0 +1,7 @@
+load("/Users/png/Documents/1. JSK/3. Microbiome/png.compositionalPCA/data/X.train.RData")
+ls()
+X=X.train
+save(X, file="X.RData")
+load("/Users/png/Documents/1. JSK/3. Microbiome/png.compositionalPCA/data/X.train.RData")
+X=X.train
+save(X, file="X.RData")
