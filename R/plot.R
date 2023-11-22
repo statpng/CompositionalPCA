@@ -1,5 +1,5 @@
-#' @export png.pca.plot
-png.pca.plot <- function(X, ...){
+#' @export pca.plot
+pca.plot <- function(X, ...){
   X %>% {
     PCs <- prcomp(.)$x
     ExplainedVariance <- round(apply(PCs,2,var) %>% {(.)/sum(.)} %>% head(2),4)*100
@@ -15,8 +15,8 @@ png.pca.plot <- function(X, ...){
 }
 
 
-#' @export png.pca.convergence
-png.pca.convergence <- function(fit){
+#' @export pca.convergence
+pca.convergence <- function(fit){
   if(FALSE){
     fit <- fit5_1
   }
@@ -68,12 +68,12 @@ png.pca.convergence <- function(fit){
 }
 
 
-#' @export png.pca.plot_convergence
-png.pca.plot_convergence <- function(fit, maxit=100){
+#' @export pca.plot_convergence
+pca.plot_convergence <- function(fit, maxit=100){
   if(is.data.frame(fit)){
     df <- fit
   } else {
-    df <- png.pca.convergence(fit)
+    df <- pca.convergence(fit)
   }
   
   df[,1] <- as.numeric(df[,1])
@@ -103,8 +103,8 @@ png.pca.plot_convergence <- function(fit, maxit=100){
 
 
 
-#' @export png.angle
-png.angle <- function(true, est){
+#' @export angle
+angle <- function(true, est){
   # true: n x p; est: n x p
   
   # The largest principal angle
@@ -120,17 +120,17 @@ png.angle <- function(true, est){
 
 
 
-#' @export png.pca.criteria
-png.pca.criteria <- function(fit, data, n.test){
+#' @export pca.criteria
+pca.criteria <- function(fit, data, n.test){
   if(FALSE){
     n=50; p=50; r=5; snr=2; eta=0.1/log(p); seed=1
-    data <- sim.simplex(n=n,p=p,r=r,snr=snr,d=10,d0=0.01,seed=seed,eta=eta)
+    data <- sim.Linear(n=n,p=p,r=r,snr=snr,d=10,d0=0.01,seed=seed,eta=eta)
     
-    fit1 <- png.ppca_qp(data$X2, nrank=r, kappa=1e-6, maxit=2000, eps=1e-6, gamma=0.5, save.est.path = TRUE)
-    fit2 <- png.gppca_qp(data$X2, nrank=r, kappa=1e-6, maxit=2000, eps=1e-6, gamma=0.5, save.est.path = TRUE)
+    fit1 <- aCPCA(data$X2, nrank=r, kappa=1e-6, maxit=2000, eps=1e-6, gamma=0.5, save.est.path = TRUE)
+    fit2 <- CPCA(data$X2, nrank=r, kappa=1e-6, maxit=2000, eps=1e-6, gamma=0.5, save.est.path = TRUE)
     
-    fit1 %>% png.pca.criteria(data, n.test=n*5)
-    fit2 %>% png.pca.criteria(data, n.test=n*5)
+    fit1 %>% pca.criteria(data, n.test=n*5)
+    fit2 %>% pca.criteria(data, n.test=n*5)
     
   }
   
@@ -143,7 +143,7 @@ png.pca.criteria <- function(fit, data, n.test){
 
   data$params["n"] <- n.test
   true <- data %>% { list(Xtrain=.$X2,
-                          Xtest=sim.simplex.test(.$params)$X2,
+                          Xtest=sim.Linear.test(.$params)$X2,
                           V=.$V) }
   
   Xtrain=true$Xtrain
@@ -152,9 +152,9 @@ png.pca.criteria <- function(fit, data, n.test){
   
   vhat <- fit$vhat
   xhat_train <- fit$xhat
-  xhat_test <- png.projection(Xtest, fit, method=fit$method)
+  xhat_test <- projection(Xtest, fit, type.projection=fit$type.projection)
   
-  # png.projection(Xtrain, fit, method=fit$method)[1:5,1:5]
+  # projection(Xtrain, fit, type.projection=fit$type.projection)[1:5,1:5]
   # xhat_train[1:5,1:5]
   
   obj.Xtrain <- sqrt(mean((Xtrain-xhat_train)^2))
@@ -162,8 +162,8 @@ png.pca.criteria <- function(fit, data, n.test){
   
   rmse.Xtrain <- sqrt(mean((Xtrain-xhat_train)^2))
   rmse.Xtest <- sqrt(mean((Xtest-xhat_test)^2))
-  Pangle.V <- png.angle(Vtrue, vhat)$max
-  Gangle.V <- png.angle(Vtrue, vhat)$Grassmannian
+  Pangle.V <- angle(Vtrue, vhat)$max
+  Gangle.V <- angle(Vtrue, vhat)$Grassmannian
   # Out-of-simplex Sample Percentage
   OutOfSimplex <- mean(apply(xhat_train,1,function(x) any(x < -1e-8)))
   Sparsity <- mean( abs(xhat_train) < 1e-12 )
@@ -186,8 +186,8 @@ png.pca.criteria <- function(fit, data, n.test){
 
 
 
-#' @export png.CompositionalPlot
-png.CompositionalPlot <- function(pseq, xhat=NULL, uhat=NULL, title="", df.color=NULL, legend.ncol=10){
+#' @export CompositionalPlot
+CompositionalPlot <- function(pseq, xhat=NULL, uhat=NULL, title="", df.color=NULL, legend.ncol=10){
   if(FALSE){
     pseq <- pseq_list_total_xhat$urine$Phylum
     xhat <- fit4$xhat
@@ -301,8 +301,8 @@ png.CompositionalPlot <- function(pseq, xhat=NULL, uhat=NULL, title="", df.color
 
 
 
-#' @export png.MultiCompositionalPlot
-png.MultiCompositionalPlot <- function(p.list, title="", legend.ncol=10){
+#' @export MultiCompositionalPlot
+MultiCompositionalPlot <- function(p.list, title="", legend.ncol=10){
   if(FALSE){
     p.list <- list(ppca=p1, gppca=p2, lrpca=p3)
   }
@@ -382,14 +382,14 @@ png.MultiCompositionalPlot <- function(p.list, title="", legend.ncol=10){
 
 
 
-#' @export png.CheckComposition
-png.CheckComposition <- function(X, eps=1e-8){
+#' @export CheckComposition
+CheckComposition <- function(X, eps=1e-8){
   if(FALSE){
     n=10; p=500
     set.seed(2)
     
     X <- matrix(runif(n*p,0,1),n,p) %>% {t(apply(.,1,function(x)x/sum(x)))}
-    X <- png.pca(X,nrank=1)$xhat
+    X <- PCA(X,nrank=1)$xhat
     sum(Xhat>1|Xhat<0)
   }
   
@@ -413,14 +413,14 @@ png.CheckComposition <- function(X, eps=1e-8){
   out
 }
 
-#' @export png.CompositionalViolation
-png.CompositionalViolation <- function(X){
+#' @export CompositionalViolation
+CompositionalViolation <- function(X){
   if(FALSE){
     n=10; p=100
     X <- matrix(runif(n*p,0,1),n,p)
   }
   
-  png.CheckComposition( png.pca(X)$xhat )
+  CheckComposition( PCA(X)$xhat )
   
   X
   
@@ -428,8 +428,8 @@ png.CompositionalViolation <- function(X){
 
 
 
-#' @export png.crit.path
-png.crit.path <- function(fit, remove=NULL){
+#' @export crit.path
+crit.path <- function(fit, remove=NULL){
   fit.path <- fit$fit.path
   N <- length(fit.path)
   
@@ -530,8 +530,8 @@ make_barplot2 <- function (dfm, group_by, direction="vertical") {
 
 
 
-#' @export png.top_taxa_list
-png.top_taxa_list <- function(LIST, cutoff=0.0001, n=NULL){
+#' @export top_taxa_list
+top_taxa_list <- function(LIST, cutoff=0.0001, n=NULL){
   
   if( is.null(n) ){
     n <- 0.5*length(taxa(LIST[[1]]))
@@ -544,8 +544,8 @@ png.top_taxa_list <- function(LIST, cutoff=0.0001, n=NULL){
 
 
 
-#' @export png.PlotComposition
-png.PlotComposition <- function(pseq, taxa=NULL, group_by="Site", group.level=c("urine", "serum", "stool", "stoolp", "stools"), sample.pattern="[a-z]+\\_", filename="./plot.pdf", height=5, width=10, legend.ncol=10){
+#' @export PlotComposition
+PlotComposition <- function(pseq, taxa=NULL, group_by="Site", group.level=c("urine", "serum", "stool", "stoolp", "stools"), sample.pattern="[a-z]+\\_", filename="./plot.pdf", height=5, width=10, legend.ncol=10){
   
   
   # tmp.list[[idx]] %>% { prune_taxa( taxa_sums(.)/N > 0.001, . ) } %>% taxa
@@ -601,8 +601,8 @@ png.PlotComposition <- function(pseq, taxa=NULL, group_by="Site", group.level=c(
 
 
 
-#' @export png.PlotComposition2
-png.PlotComposition2 <- function(pseq, taxa=NULL, group_by=c("Structure", "Site"), group.level=list( c("data", "joint", "individual"), c("urine", "serum", "stools") ), filename="./plot.pdf", sample.sort="top", height=5, width=10, legend.ncol=10){
+#' @export PlotComposition2
+PlotComposition2 <- function(pseq, taxa=NULL, group_by=c("Structure", "Site"), group.level=list( c("data", "joint", "individual"), c("urine", "serum", "stools") ), filename="./plot.pdf", sample.sort="top", height=5, width=10, legend.ncol=10){
   
   if(FALSE){
     pseq <- decomp_ajive
@@ -860,10 +860,10 @@ plot_composition2 <- function(x,
 
 
 
-#' @export png.PlotComposition3
-png.PlotComposition3 <- function(pseq, taxa=NULL, sample.sort="unique", filename="./plot.pdf", height=5, width=10, legend.ncol=10){
+#' @export PlotComposition3
+PlotComposition3 <- function(pseq, taxa=NULL, sample.sort="unique", filename="./plot.pdf", height=5, width=10, legend.ncol=10){
   
-  # png.PlotComposition2(pseq_comp, taxa=TopN.Taxa, sample.sort=level,
+  # PlotComposition2(pseq_comp, taxa=TopN.Taxa, sample.sort=level,
   #                      filename=paste0("./tmp_", idx, ".",level,".pdf"),
   #                      height=10, width=21, legend.ncol=10)
   

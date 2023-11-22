@@ -115,7 +115,7 @@ sim.Linear <- function(n, p, r, snr=2, d=10, d0=0, seed=1, seed.U=seed, seed.V=s
   
   params <- list(n=n, p=p, r=r, snr=snr, d=d, d0=d0, seed=seed, seed.U=seed.U, seed.V=seed.V, alpha=alpha, eta=eta)
   
-  result <- list(mu=mu, U=U, D=D, V=V, E=E, X0=X0, X=X, X2=X2, params=params, type="Linear")
+  result <- list(mu=mu, U=U, D=D, V=V, E=E, X0=X0, X=X, X2=X2, params=params)
   
     
   return( result )
@@ -268,7 +268,7 @@ sim.LogNormal <- function(n, p, r, snr=5, d=3, d0=0, zero.prop=0.1, seed=1, seed
   #
   params <- list(n=n, p=p, r=r, snr=snr, d=d, d0=d0, seed=seed, seed.U=seed.U, seed.V=seed.V)
   #
-  result <- list(mu=mu, U=U, D=D, V=V, Vlist=lapply(seq(-20,20,1), function(z) z*V), E=E, X0=X02, X=X, X2=X2, params=params, type="LogNormal")
+  result <- list(mu=mu, U=U, D=D, V=V, Vlist=lapply(seq(-20,20,1), function(z) z*V), E=E, X0=X02, X=X, X2=X2, params=params)
   #
   return( result )
   

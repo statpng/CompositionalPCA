@@ -1,5 +1,5 @@
-#' @export png.merge_pseq_list
-png.merge_pseq_list <- function(pseq_list, label="Site"){
+#' @export merge_pseq_list
+merge_pseq_list <- function(pseq_list, label="Site"){
   
   if(FALSE){
     load("./data/pseq_list.rda")
@@ -73,8 +73,8 @@ png.merge_pseq_list <- function(pseq_list, label="Site"){
 
 
 
-#' @export png.df.split_taxa
-png.df.split_taxa <- function(df, col="taxonomy", sep="; ", col_names=c("Kingdom","Phylum","Class","Order","Family", "Genus", "Species")){
+#' @export df.split_taxa
+df.split_taxa <- function(df, col="taxonomy", sep="; ", col_names=c("Kingdom","Phylum","Class","Order","Family", "Genus", "Species")){
   if(FALSE){
     df <- data_list[[1]]
     col="taxonomy"
@@ -93,8 +93,8 @@ png.df.split_taxa <- function(df, col="taxonomy", sep="; ", col_names=c("Kingdom
 }
 
 
-#' @export png.otu2pseq
-png.otu2pseq <- function(otu, taxa, sample){
+#' @export otu2pseq
+otu2pseq <- function(otu, taxa, sample){
 
   if(FALSE){
     otu <- data_list3[[1]][,-(1:7)]
@@ -163,8 +163,8 @@ Remove_All_Zeros <- function(df, axis){
 
 
 
-#' @export png.make_zero
-png.make_zero <- function(x, cutoff=0.01){
+#' @export make_zero
+make_zero <- function(x, cutoff=0.01){
   # x: compositional data vector with zero values
   if(FALSE){
     x = c(0.01,0.01,0.5,0.48)
@@ -178,8 +178,8 @@ png.make_zero <- function(x, cutoff=0.01){
 }
 
 
-#' @export png.replace_simple
-png.replace_simple <- function(x, delta=0.01){
+#' @export replace_simple
+replace_simple <- function(x, delta=0.01){
   # x: compositional data vector with zero values
   if(FALSE){
     x = c(0,0.1,0.8,0.1,0)
@@ -192,20 +192,10 @@ png.replace_simple <- function(x, delta=0.01){
 
 
 
-#' @export png.pca.approx
-png.pca.approx <- function(X, nrank){
-  # X: n x p dimensional matrix in real space
-  n=nrow(X)
-  mu=colMeans(X)
-
-  with( prcomp(X),
-        tcrossprod(rep(1,n),mu)+tcrossprod(x[,1:nrank], rotation[,1:nrank]) )
-}
 
 
-
-#' @export png.pca.reconstruction
-png.pca.reconstruction <- function(fit, nrank){
+#' @export pca.reconstruction
+pca.reconstruction <- function(fit, nrank){
   mu <- fit$mu
   uhat <- matrix(fit$uhat[,1:nrank], ncol=nrank)
   vhat <- matrix(fit$vhat[,1:nrank], ncol=nrank)
@@ -219,8 +209,8 @@ png.pca.reconstruction <- function(fit, nrank){
 
 
 
-#' @export png.cpca.conv
-png.cpca.conv <- function(LIST, eps=1e-6, accept0.1=FALSE){
+#' @export CPCA.conv
+CPCA.conv <- function(LIST, eps=1e-6, accept0.1=FALSE){
   
   if( accept0.1 ){
     conv.list <- LIST %>% purrr::map(function(.x){
@@ -244,8 +234,8 @@ png.cpca.conv <- function(LIST, eps=1e-6, accept0.1=FALSE){
 
 
 
-#' @export png.proj2simplex
-png.proj2simplex <- function(v){
+#' @export proj2simplex
+proj2simplex <- function(v){
   ord = order(v, decreasing = TRUE)
   v = v[ord]
   s = 0
@@ -272,13 +262,50 @@ png.proj2simplex <- function(v){
 
 
 
-# Depreciated -------------------------------------------------------------
-
-#' @export png.NormalVector
-png.NormalVector <- function(x,v){
+# Deprecated
+#' @export NormalVector
+NormalVector <- function(x,v){
   x-sum(x*v)/norm(v,"2") * v/norm(v,"2")
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# clr transformation ------------------------------------------------------
+
+
+
+#' @export iclr
+iclr <- function(x){
+  exp(x)/sum(exp(x))
+}
+
+#' @export clr
+clr <- function(x){
+  gx <- sum(log(x))/length(x)
+  log(x)-gx
+}
+
+#' @export ICLR
+ICLR <- function(X){
+  t(apply(X,1,iclr))
+}
+
+#' @export CLR
+CLR <- function(X){
+  t(apply(X,1,clr))
+}
 
 
 

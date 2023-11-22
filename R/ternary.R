@@ -1,5 +1,5 @@
-#' @export png.loading2StartEnd
-png.loading2StartEnd <- function(mu,vhat){
+#' @export loading2StartEnd
+loading2StartEnd <- function(mu,vhat){
   dir_list <- NULL
   for( k in 1:ncol(vhat) ){
     v <- vhat[,k]
@@ -12,8 +12,8 @@ png.loading2StartEnd <- function(mu,vhat){
 
 
 
-#' @export png.ternary.init
-png.ternary.init <- function(X, cex=0.8, cex.axis=1.0, color="grey50"){
+#' @export ternary.init
+ternary.init <- function(X, cex=0.8, cex.axis=1.0, color="grey50"){
   
   # old
   # {
@@ -37,8 +37,8 @@ png.ternary.init <- function(X, cex=0.8, cex.axis=1.0, color="grey50"){
 
 
 
-#' @export png.ternary.PC_axis
-png.ternary.PC_axis <- function(mu, vhat, color="darkblue", cex=1, print.PCtext=TRUE, adjust.pc=1.1){
+#' @export ternary.PC_axis
+ternary.PC_axis <- function(mu, vhat, color="darkblue", cex=1, print.PCtext=TRUE, adjust.pc=1.1){
   
   Start <- apply(vhat,2,function(v) Solve_U_SP(v*-10, mu, v, gamma=0))
   End <- apply(vhat,2,function(v) Solve_U_SP(v*10, mu, v, gamma=0))
@@ -53,20 +53,20 @@ png.ternary.PC_axis <- function(mu, vhat, color="darkblue", cex=1, print.PCtext=
   return(list(Start=Start, End=End))
 }
 
-#' @export png.ternary.point
-png.ternary.point <- function(tuple, shape="+", cex, color="red"){
+#' @export ternary.point
+ternary.point <- function(tuple, shape="+", cex, color="red"){
   AddToTernary(text, tuple, shape, cex = cex, font = 1, col=color)
 }
 
 
-#' @export png.ternary
-png.ternary <- function(X, vhat=NULL, xhat=NULL, mu=NULL, cex=1.0, cex.axis=1.0, adjust.pc=1.1, print.caption=TRUE, print.PCtext=FALSE, color.pc="darkblue"){
+#' @export ternary
+ternary <- function(X, vhat=NULL, xhat=NULL, mu=NULL, cex=1.0, cex.axis=1.0, adjust.pc=1.1, print.caption=TRUE, print.PCtext=FALSE, color.pc="darkblue"){
   if(FALSE){
     cex=0.5
   }
   
   
-  png.ternary.init(X, color="grey40", cex=cex*0.6, cex.axis=cex.axis)
+  ternary.init(X, color="grey40", cex=cex*0.6, cex.axis=cex.axis)
   
   if(!is.null(vhat)){
     
@@ -81,8 +81,8 @@ png.ternary <- function(X, vhat=NULL, xhat=NULL, mu=NULL, cex=1.0, cex.axis=1.0,
           vhat.i1 = vhat[[ii]][,jj]
           vhat.i2 = vhat[[ii+1]][,jj]
           
-          vhat.start <- png.iclr( mu+vhat.i1 )
-          vhat.end <- png.iclr( mu+vhat.i2 )
+          vhat.start <- iclr( mu+vhat.i1 )
+          vhat.end <- iclr( mu+vhat.i2 )
           
           
           TernaryLines(rbind(vhat.start,vhat.end), col = color.pc)
@@ -99,7 +99,7 @@ png.ternary <- function(X, vhat=NULL, xhat=NULL, mu=NULL, cex=1.0, cex.axis=1.0,
         mu <- colMeans(X)
       }
       
-      png.ternary.PC_axis(mu, vhat, color=color.pc, cex=cex*0.8, print.PCtext=print.PCtext, adjust.pc=adjust.pc)
+      ternary.PC_axis(mu, vhat, color=color.pc, cex=cex*0.8, print.PCtext=print.PCtext, adjust.pc=adjust.pc)
       
     }
   }
@@ -122,22 +122,22 @@ png.ternary <- function(X, vhat=NULL, xhat=NULL, mu=NULL, cex=1.0, cex.axis=1.0,
 # Unused -----
 
 
-#' @export png.ternary.ternary2coord
-png.ternary.ternary2coord <- function(x){
+#' @export ternary.ternary2coord
+ternary.ternary2coord <- function(x){
   Ternary::TernaryToXY(x)
   # a=x[1]; b=x[2]; c=x[3]
   # c(1/2*(2*b+c)/(a+b+c), sqrt(3)/2*(c)/(a+b+c))
 }
 
 
-#' @export png.ternary.coord2ternary
-png.ternary.coord2ternary <- function(x){
+#' @export ternary.coord2ternary
+ternary.coord2ternary <- function(x){
   Ternary::XYToTernary(x[1], x[2])
 }
 
 
-#' @export png.rotmat
-png.rotmat <- function(angle){
+#' @export rotmat
+rotmat <- function(angle){
   theta = angle * 180/pi
   matrix(c(cos(theta),-sin(theta),sin(theta),cos(theta)),2,2,byrow=T)
 }
