@@ -1,7 +1,12 @@
 #' @export reconstruction_error
 reconstruction_error <- function(fit, data, n.test="10x"){
   
-  fit.list <- list(fit)
+  if("type.projection" %in% names(fit)){
+    fit.list <- list(fit)
+  } else {
+    fit.list <- fit
+  }
+  
   
   X0 <- data$X0
   params <- data$params
@@ -24,12 +29,12 @@ reconstruction_error <- function(fit, data, n.test="10x"){
   }))
   
   rmspe.list <- try(sapply(fit.list, function(fit){
-    xhat_test <- projection(Xtest, fit, type.projection=fit$type.projection)$xhat
+    xhat_test <- projection(Xtest, fit)$xhat
     # mean(rowSums((Xtest - xhat_test)^2))
     sqrt(mean((Xtest - xhat_test)^2))
   }))
   
-  cbind(rmse=rmse.list, rmspe=rmspe.list)
+  cbind("within-sample"=rmse.list, "out-of-sample"=rmspe.list)
 }
 
 
@@ -53,7 +58,7 @@ pca.rmse.linear <- function(fit.list, data, n.test="10x"){
   }))
   
   rmspe.list <- try(sapply(fit.list, function(fit){
-    xhat_test <- projection(Xtest, fit, type.projection=fit$type.projection)$xhat
+    xhat_test <- projection(Xtest, fit)$xhat
     # mean(rowSums((Xtest - xhat_test)^2))
     sqrt(mean((Xtest - xhat_test)^2))
   }))
@@ -81,7 +86,7 @@ pca.rmse.LogNormal <- function(fit.list, data, n.test="10x"){
     sqrt(mean((X0 - fit$xhat)^2))
   }))
   rmspe.list <- try(sapply(fit.list, function(fit){
-    xhat_test <- projection(Xtest, fit, type.projection=fit$type.projection)$xhat
+    xhat_test <- projection(Xtest, fit)$xhat
     # mean(rowSums((Xtest - xhat_test)^2))
     sqrt(mean((Xtest - xhat_test)^2))
   }))
@@ -107,7 +112,7 @@ pca.rmse.LogNormal_rank <- function(fit.list, data, n.test="10x"){
   rmse.list <- try(sapply(fit.list, function(fit){
     
     lapply(1:data$params$r, function(r){
-      Xhat <- projection(data$X2, fit=fit, nrank=r, type.projection=fit$type.projection)
+      Xhat <- projection(data$X2, fit=fit, nrank=r)
       sqrt(mean((data$X0 - Xhat)^2))
     }) %>% unlist
     
@@ -120,7 +125,7 @@ pca.rmse.LogNormal_rank <- function(fit.list, data, n.test="10x"){
   rmspe.list <- try(sapply(fit.list, function(fit){
     
     lapply(1:data$params$r, function(r){
-      Xhat <- projection(Xtest, fit=fit, nrank=r, type.projection=fit$type.projection)
+      Xhat <- projection(Xtest, fit=fit, nrank=r)
       sqrt(mean((Xtest - Xhat)^2))
     }) %>% unlist
     
@@ -154,7 +159,7 @@ pca.rmse.linear_rank <- function(fit.list, data, n.test="10x"){
   rmse.list <- try(sapply(fit.list, function(fit){
     
     lapply(1:data$params$r, function(r){
-      Xhat <- projection(data$X2, fit=fit, nrank=r, type.projection=fit$type.projection)
+      Xhat <- projection(data$X2, fit=fit, nrank=r)
       sqrt(mean((data$X0 - Xhat)^2))
     }) %>% unlist
     
@@ -167,7 +172,7 @@ pca.rmse.linear_rank <- function(fit.list, data, n.test="10x"){
   rmspe.list <- try(sapply(fit.list, function(fit){
     
     lapply(1:data$params$r, function(r){
-      Xhat <- projection(Xtest, fit=fit, nrank=r, type.projection=fit$type.projection)
+      Xhat <- projection(Xtest, fit=fit, nrank=r)
       sqrt(mean((Xtest - Xhat)^2))
     }) %>% unlist
     

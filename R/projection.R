@@ -1,7 +1,13 @@
 #' @export projection
-projection <- function(X, fit, nrank=NULL, type.projection=c("proj","1dim","mdim","logratio"), kappa_u=1e-8){
+projection <- function(X, fit, nrank=NULL, kappa_u=1e-8){
+  
+  
+  # type.projection=c("proj","1dim","mdim","logratio")
+  type.projection <- fit$type.projection
+  
+  
   if(FALSE){
-    X=Xtrain; type.projection=fit$type.projection
+    X=Xtrain;
     
     data <- sim.LogNormal(n=500, p=100, r=2, snr=0.001, d=d, seed=1, verbose=TRUE); 
     Xtest <- sim.LogNormal.test(data$params)$X2
@@ -11,14 +17,14 @@ projection <- function(X, fit, nrank=NULL, type.projection=c("proj","1dim","mdim
     
     sum( abs( fit1$uhat[,1] - fit2$uhat[,1] ) )
     sum( abs( fit1$xhat[,1] - fit2$xhat[,1] ) )
-    projection(X, fit1, type.projection=fit1$type.projection)$xhat[1:5,1:5]
-    proj1 <- fit1 %>% { projection(Xtest, ., nrank=1, type.projection=.$type.projection, kappa_u=1e-16) }
-    proj2 <- fit2 %>% { projection(Xtest, ., nrank=1, type.projection=.$type.projection, kappa_u=1e-16) }
+    projection(X, fit1)$xhat[1:5,1:5]
+    proj1 <- fit1 %>% { projection(Xtest, ., nrank=1, kappa_u=1e-16) }
+    proj2 <- fit2 %>% { projection(Xtest, ., nrank=1, kappa_u=1e-16) }
     
     sum(abs(proj1$xhat - proj2$xhat ))
     
     rmspe.list <- try(sapply(fit.list, function(fit){
-      xhat_test <- projection(Xtest, fit, type.projection=fit$type.projection)
+      xhat_test <- projection(Xtest, fit)
       # mean(rowSums((Xtest - xhat_test)^2))
       sqrt(mean((Xtest - xhat_test)^2))
     }))

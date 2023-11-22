@@ -152,9 +152,9 @@ pca.criteria <- function(fit, data, n.test){
   
   vhat <- fit$vhat
   xhat_train <- fit$xhat
-  xhat_test <- projection(Xtest, fit, type.projection=fit$type.projection)
+  xhat_test <- projection(Xtest, fit)
   
-  # projection(Xtrain, fit, type.projection=fit$type.projection)[1:5,1:5]
+  # projection(Xtrain, fit)[1:5,1:5]
   # xhat_train[1:5,1:5]
   
   obj.Xtrain <- sqrt(mean((Xtrain-xhat_train)^2))

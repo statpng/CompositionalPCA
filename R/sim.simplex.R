@@ -240,6 +240,9 @@ sim.LogNormal <- function(n, p, r, snr=5, d=3, d0=0, zero.prop=0.1, seed=1, seed
   sigma <- sqrt(sum(as.numeric(X0)^2)/sum(as.numeric(E)^2)/snr)
   E <- E * sigma
   
+  snr_out <- sum(tcrossprod(U,V)^2) / sum(E^2)
+  if(verbose) print(paste0("sigma=",round(sigma,4), "; snr=", round(snr_out,4)))
+  
   # Z <- matrix(0,n,p)
   # for(j in 1:p){
   #   eta_j <- runif(1,0,zero.prop)

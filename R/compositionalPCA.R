@@ -313,7 +313,7 @@ cv.CPCA <- function(X, nrank=2, nfold=5){
   for( i in 1:nfold ){
     X.test <- X[foldid == i,]
     out[[i]] <- purrr::map(fit.list[[i]], ~{
-      try( utils::rmse(X.test, projection(X.test, .x, type.projection=.x$type.projection)) )
+      try( utils::rmse(X.test, projection(X.test, .x)) )
     })
   }
   
@@ -351,8 +351,8 @@ fit_all <- function(X, nrank, ...){
   fit3 <- purrr::map(gamma.seq, ~try(aCPCA(X, nrank=nrank, gamma=.x, ...)))
   fit4 <- purrr::map(gamma.seq, ~try(CPCA(X, nrank=nrank, gamma=.x, ...)))
   
-  names(fit3) <- paste0("aCPCA (", format(gamma.seq,digits=2), ")" )
-  names(fit4) <- paste0("CPCA (", format(gamma.seq,digits=2), ")" )
+  names(fit3) <- "aCPCA" # paste0("aCPCA (", format(gamma.seq,digits=2), ")" )
+  names(fit4) <- "CPCA" # paste0("CPCA (", format(gamma.seq,digits=2), ")" )
   
   fit.list <- list(fit1,list(crPCA=fit2),fit3,fit4) %>% Reduce(append, .)
   fit.list
