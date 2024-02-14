@@ -45,6 +45,7 @@ projection <- function(X, fit, nrank=NULL, kappa_u=1e-8){
   
   
   mu <- fit$mu
+  uhat <- fit$uhat
   vhat <- fit$vhat
   
   if( type.projection == "proj" ){

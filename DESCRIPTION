@@ -8,7 +8,7 @@ Authors@R: c(person(given = "Kipoong", family = "Kim",
                     role = c("aut", "cre")) )
 License: GPL (>= 3)
 Depends: R (>= 3.6.0), mnormt, MASS, quadprog, dirmult
-Imports: truncnorm, compositions, ggplot2, magrittr, purrr, dplyr, reshape2, Rtsne, Ternary
+Imports: truncnorm, compositions, ggplot2, magrittr, purrr, reshape2, Rtsne, dplyr, Ternary
 Suggests: rmarkdown, testthat
 URL: http://github.com/statpng
 BugReports: http://github.com/statpng

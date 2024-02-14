@@ -41,7 +41,7 @@ reconstruction_error <- function(fit, data, n.test="10x"){
 
 
 #' @export pca.rmse.linear
-pca.rmse.linear <- function(fit.list, data, n.test="10x"){
+pca.rmse.linear <- function(fit.list, data, n.test="10x", relative=FALSE){
   X0 <- data$X0
   params <- data$params
   
@@ -54,13 +54,23 @@ pca.rmse.linear <- function(fit.list, data, n.test="10x"){
   Xtest <- sim.Linear.test(params_test)$X2
   
   rmse.list <- try(sapply(fit.list, function(fit){
-    sqrt(mean((X0 - fit$xhat)^2))
+    if(relative){
+      sqrt(1/length(X0)) * norm(X0 - fit$xhat, "F") / norm(X0, "F")
+    } else {
+      sqrt(mean((X0 - fit$xhat)^2))
+    }
   }))
   
   rmspe.list <- try(sapply(fit.list, function(fit){
     xhat_test <- projection(Xtest, fit)$xhat
     # mean(rowSums((Xtest - xhat_test)^2))
-    sqrt(mean((Xtest - xhat_test)^2))
+    
+    if(relative){
+      norm(Xtest - xhat_test, "F") / norm(Xtest, "F")
+    } else {
+      sqrt(mean((Xtest - xhat_test)^2))
+    }
+    
   }))
   
   cbind(rmse=rmse.list, rmspe=rmspe.list)
@@ -70,7 +80,7 @@ pca.rmse.linear <- function(fit.list, data, n.test="10x"){
 
 
 #' @export pca.rmse.LogNormal
-pca.rmse.LogNormal <- function(fit.list, data, n.test="10x"){
+pca.rmse.LogNormal <- function(fit.list, data, n.test="10x", relative=FALSE){
   X0=data$X0
   params=data$params
   
@@ -83,12 +93,22 @@ pca.rmse.LogNormal <- function(fit.list, data, n.test="10x"){
   Xtest <- sim.LogNormal.test(params_test)$X2
   
   rmse.list <- try(sapply(fit.list, function(fit){
-    sqrt(mean((X0 - fit$xhat)^2))
+    if(relative){
+      sqrt(1/length(X0)) * norm(X0 - fit$xhat, "F") / norm(X0, "F")
+    } else {
+      sqrt(mean((X0 - fit$xhat)^2))
+    }
   }))
   rmspe.list <- try(sapply(fit.list, function(fit){
     xhat_test <- projection(Xtest, fit)$xhat
     # mean(rowSums((Xtest - xhat_test)^2))
-    sqrt(mean((Xtest - xhat_test)^2))
+    
+    if(relative){
+      norm(Xtest - xhat_test, "F") / norm(Xtest, "F")
+    } else {
+      sqrt(mean((Xtest - xhat_test)^2))
+    }
+    
   }))
   
   cbind(rmse=rmse.list, rmspe=rmspe.list)
@@ -96,55 +116,10 @@ pca.rmse.LogNormal <- function(fit.list, data, n.test="10x"){
 
 
 
-#' @export pca.rmse.LogNormal_rank
-pca.rmse.LogNormal_rank <- function(fit.list, data, n.test="10x"){
-  X0=data$X0
-  params=data$params
-  
-  if(n.test == "10x"){
-    params_test <- png.utils::png.list.replace(params, list(n=10*params[["n"]]))
-  } else {
-    params_test <- png.utils::png.list.replace(params, list(n=n.test))
-  }
-  
-  Xtest <- sim.LogNormal.test(params_test)$X2
-  
-  rmse.list <- try(sapply(fit.list, function(fit){
-    
-    lapply(1:data$params$r, function(r){
-      Xhat <- projection(data$X2, fit=fit, nrank=r)
-      sqrt(mean((data$X0 - Xhat)^2))
-    }) %>% unlist
-    
-  }))
-  
-  
-  # rmse.list %>% {cbind.data.frame(rank=1:nrow(.), .)} %>% as.data.frame %>% gather(type.projection, value, -rank) %>% ggplot() + geom_line(aes(rank, value, color=type.projection)) + utils::ggplot.scale_y_log10()
-  
-  
-  rmspe.list <- try(sapply(fit.list, function(fit){
-    
-    lapply(1:data$params$r, function(r){
-      Xhat <- projection(Xtest, fit=fit, nrank=r)
-      sqrt(mean((Xtest - Xhat)^2))
-    }) %>% unlist
-    
-  }))
-  
-  # rmspe.list %>% {cbind.data.frame(rank=1:nrow(.), .)} %>% as.data.frame %>% gather(type.projection, value, -rank) %>% ggplot() + geom_line(aes(rank, value, color=type.projection)) + utils::ggplot.scale_y_log10()
-  
-  
-  list(rmse=rmse.list, rmspe=rmspe.list)
-}
-
-
-
-
-
 
 
 #' @export pca.rmse.linear_rank
-pca.rmse.linear_rank <- function(fit.list, data, n.test="10x"){
+pca.rmse.linear_rank <- function(fit.list, data, n.test="10x", relative=FALSE){
   X0=data$X0
   params=data$params
   
@@ -159,8 +134,14 @@ pca.rmse.linear_rank <- function(fit.list, data, n.test="10x"){
   rmse.list <- try(sapply(fit.list, function(fit){
     
     lapply(1:data$params$r, function(r){
-      Xhat <- projection(data$X2, fit=fit, nrank=r)
-      sqrt(mean((data$X0 - Xhat)^2))
+      Xhat <- projection(data$X2, fit=fit, nrank=r)$xhat
+      
+      if(relative){
+        sqrt(1/length(data$X0)) * norm(data$X0 - Xhat, "F") / norm(data$X0, "F")
+      } else {
+        sqrt(mean((data$X0 - Xhat)^2))
+      }
+      
     }) %>% unlist
     
   }))
@@ -172,8 +153,14 @@ pca.rmse.linear_rank <- function(fit.list, data, n.test="10x"){
   rmspe.list <- try(sapply(fit.list, function(fit){
     
     lapply(1:data$params$r, function(r){
-      Xhat <- projection(Xtest, fit=fit, nrank=r)
-      sqrt(mean((Xtest - Xhat)^2))
+      Xhat <- projection(Xtest, fit=fit, nrank=r)$xhat
+      
+      if(relative){
+        norm(Xtest - Xhat, "F") / norm(Xtest, "F")
+      } else {
+        sqrt(mean((Xtest - Xhat)^2))
+      }
+      
     }) %>% unlist
     
   }))
@@ -183,6 +170,67 @@ pca.rmse.linear_rank <- function(fit.list, data, n.test="10x"){
   
   list(rmse=rmse.list, rmspe=rmspe.list)
 }
+
+
+
+#' @export pca.rmse.LogNormal_rank
+pca.rmse.LogNormal_rank <- function(fit.list, data, n.test="10x", relative=FALSE){
+  X0=data$X0
+  params=data$params
+  
+  if(n.test == "10x"){
+    params_test <- png.utils::png.list.replace(params, list(n=10*params[["n"]]))
+  } else {
+    params_test <- png.utils::png.list.replace(params, list(n=n.test))
+  }
+  
+  Xtest <- sim.LogNormal.test(params_test)$X2
+  
+  rmse.list <- try(sapply(fit.list, function(fit){
+    
+    lapply(1:data$params$r, function(r){
+      Xhat <- projection(data$X2, fit=fit, nrank=r)$xhat
+      
+      if(relative){
+        sqrt(1/length(data$X0)) * norm(data$X0 - Xhat, "F") / norm(data$X0, "F")
+      } else {
+        sqrt(mean((data$X0 - Xhat)^2))
+      }
+      
+    }) %>% unlist
+    
+  }))
+  
+  
+  # rmse.list %>% {cbind.data.frame(rank=1:nrow(.), .)} %>% as.data.frame %>% gather(type.projection, value, -rank) %>% ggplot() + geom_line(aes(rank, value, color=type.projection)) + utils::ggplot.scale_y_log10()
+  
+  
+  rmspe.list <- try(sapply(fit.list, function(fit){
+    
+    lapply(1:data$params$r, function(r){
+      Xhat <- projection(Xtest, fit=fit, nrank=r)$xhat
+      
+      if(relative){
+        norm(Xtest - Xhat, "F") / norm(Xtest, "F")
+      } else {
+        sqrt(mean((Xtest - Xhat)^2))
+      }
+      
+    }) %>% unlist
+    
+  }))
+  
+  # rmspe.list %>% {cbind.data.frame(rank=1:nrow(.), .)} %>% as.data.frame %>% gather(type.projection, value, -rank) %>% ggplot() + geom_line(aes(rank, value, color=type.projection)) + utils::ggplot.scale_y_log10()
+  
+  
+  list(rmse=rmse.list, rmspe=rmspe.list)
+}
+
+
+
+
+
+
 
 
 

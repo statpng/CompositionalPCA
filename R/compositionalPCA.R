@@ -16,19 +16,15 @@ PCA <- function(X, nrank=2){
 
 
 #' @export lrPCA
-lrPCA <- function(X, nrank=2, zero.replace=NULL, delta="min0", delta.multiple=FALSE){
+lrPCA <- function(X, nrank=2, zero.replace=NULL, delta="min"){
   
-  if(grepl("min",delta)){
-    delta_num <- as.numeric(gsub("min","",delta))
-    
-    if( delta.multiple ){
-      delta <- apply(X,2,function(x) ifelse(all(x>0),1,min(x[x>0]) * 10^(delta_num)))
-    } else {
-      delta <- rep( min(X[X>0]) * 10^(delta_num), ncol(X) )
-    }
-    
+  if(delta == "min"){
+    delta <- min(X[X>0])
   }
   
+  if(length(delta)==1){
+    delta <- rep(delta, ncol(X))
+  }
   
   n=nrow(X); p=ncol(X);
   
@@ -206,7 +202,7 @@ aCPCA <- function(X, nrank=2, maxit=500, eps=1e-8, kappa_v=1e-8, gamma=1e-1, phi
 
 
 #' @export CPCA
-CPCA <- function(X, nrank=2, maxit=500, eps=1e-8, kappa_v=1e-8, gamma=1e-1, phi=0.01, kappa_u=1e-8, V.init=c("PC","random"), verbose=FALSE ){
+CPCA <- function(X, nrank=2, maxit=500, eps=1e-8, kappa_v=1e-8, gamma=1e-1, phi=0.01, kappa_u=1e-8, V.init=c("PC","random"), verbose=FALSE, save.est.path=FALSE ){
   
   if(length(V.init)>1) V.init <- "PC"
   
@@ -234,6 +230,10 @@ CPCA <- function(X, nrank=2, maxit=500, eps=1e-8, kappa_v=1e-8, gamma=1e-1, phi=
       U_total <- cbind(U_total, fit.rank1$uhat)
       V_total <- cbind(V_total, fit.rank1$vhat)
       
+      if(!save.est.path){
+        fit.rank1$est.path <- NULL
+      }
+      
       fit.path[[iter]] <- fit.rank1
     } else {
       # fit.UV <- UV_update(X=X, Vhat=V_total, maxit=maxit, eps=eps, kappa_v=kappa_v, gamma=gamma)
@@ -244,9 +244,9 @@ CPCA <- function(X, nrank=2, maxit=500, eps=1e-8, kappa_v=1e-8, gamma=1e-1, phi=
       U_total <- fit.UV$uhat
       V_total <- fit.UV$vhat
       
-      # if(!save.est.path){
-      #   fit.UV$est.path <- NULL
-      # }
+      if(!save.est.path){
+        fit.UV$est.path <- NULL
+      }
       
       fit.path[[iter]] <- fit.UV
     }
@@ -283,9 +283,53 @@ CPCA <- function(X, nrank=2, maxit=500, eps=1e-8, kappa_v=1e-8, gamma=1e-1, phi=
 
 
 
-
 #' @export cv.CPCA
-cv.CPCA <- function(X, nrank=2, nfold=5){
+cv.CPCA <- function(X, nrank=2, nfold=5, gamma=0.1, ...){
+  if(FALSE){
+    nrank <- 5
+    nfold <- 5
+    X <- pseq_list_total$urine$Phylum %>% .@otu_table %>% t
+  }
+  
+  foldid <- sample( rep(1:nfold, length=nrow(X)) )
+  
+  fit.list <- NULL
+  for( i in 1:nfold ){
+    X.train <- X[foldid != i,]
+    
+    fit.PCA <- PCA(X, nrank=nrank)
+    fit.lrPCA <- lrPCA( X.train, nrank=nrank, zero.replace="simple" )
+    fit.aCPCA <- try(aCPCA( X.train, nrank=nrank, gamma=0.1, ... ))
+    fit.CPCA <- try(CPCA( X.train, nrank=nrank, gamma=0.1, ... ))
+    
+    fit.list[[i]] <- list(fit.PCA=fit.PCA, 
+                          fit.lrPCA=fit.lrPCA, 
+                          fit.aCPCA=fit.aCPCA, 
+                          fit.CPCA=fit.CPCA)
+  }
+  
+  rmse <- function(x,y){
+    sqrt(mean((x-y)^2))
+  }
+  
+  out <- matrix(NA,nfold,4)
+  for( i in 1:nfold ){
+    X.test <- X[foldid == i,]
+    
+    for( j in 1:4 ){
+      fit <- fit.list[[i]][[j]]
+      out[i,j] <- rmse(X.test, projection(X.test, fit)$xhat)
+    }
+    
+  }
+  
+  list(out=out, fit.list=fit.list, foldid=foldid)
+}
+
+
+
+#' @export cv.fit.all
+cv.fit.all <- function(X, nrank=2, nfold=5){
   if(FALSE){
     nrank <- 5
     nfold <- 5
@@ -309,12 +353,19 @@ cv.CPCA <- function(X, nrank=2, nfold=5){
                           fit.CPCA=fit.CPCA)
   }
   
-  out <- NULL
+  rmse <- function(x,y){
+    sqrt(mean((x-y)^2))
+  }
+  
+  out <- matrix(NA,nfold,4)
   for( i in 1:nfold ){
     X.test <- X[foldid == i,]
-    out[[i]] <- purrr::map(fit.list[[i]], ~{
-      try( utils::rmse(X.test, projection(X.test, .x)) )
-    })
+    
+    for( j in 1:4 ){
+      fit <- fit.list[[i]][[j]]
+      out[i,j] <- rmse(X.test, projection(X.test, fit)$xhat)
+    }
+    
   }
   
   list(out=out, fit.list=fit.list, foldid=foldid)

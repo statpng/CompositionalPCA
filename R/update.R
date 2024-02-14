@@ -117,7 +117,7 @@ rank12 <- function(X, maxit=500, eps=1e-8, kappa_v=1e-8, gamma=0, phi=0.01, V.in
     crit <- min( sum((Vnew-Vold)^2), sum((Vnew+Vold)^2) )
     
     crit.path[it] <- crit
-    # est.path[[it]] <- list(uhat=Unew, vhat=Vnew)
+    est.path[[it]] <- list(uhat=Unew, vhat=Vnew)
     
     if( crit < eps ) break
   }
@@ -138,9 +138,9 @@ rank12 <- function(X, maxit=500, eps=1e-8, kappa_v=1e-8, gamma=0, phi=0.01, V.in
   
   loss <- mean(rowSums((X - xhat)^2))
   
-  # return( list(xhat=xhat, uhat=Unew, vhat=Vnew, it=it, crit.path=crit.path, est.path=est.path) )
-  return( list(# xhat=xhat, 
-    mu=mu, uhat=Unew, vhat=Vnew, it=it, crit.path=crit.path, loss=loss) )
+  return( list(xhat=xhat, uhat=Unew, vhat=Vnew, it=it, crit.path=crit.path, est.path=est.path) )
+  # return( list(# xhat=xhat, 
+  #   mu=mu, uhat=Unew, vhat=Vnew, it=it, crit.path=crit.path, loss=loss) )
   
 }
 
@@ -205,7 +205,7 @@ UV_update2 <- function(X, Uhat, Vhat, maxit=500, eps=1e-6, kappa_v=1e-4, gamma=0
     crit <- min( (sum((Vk_old-Vk_new)^2)), (sum((Vk_old+Vk_new)^2)) )
     
     crit.path[it] <- crit
-    # est.path[[it]] <- list(uhat=Unew, vhat=cbind(Vhat,Vk_new))
+    est.path[[it]] <- list(uhat=Unew, vhat=cbind(Vhat,Vk_new))
     
     if( crit < eps ) break
   }
@@ -222,8 +222,8 @@ UV_update2 <- function(X, Uhat, Vhat, maxit=500, eps=1e-6, kappa_v=1e-4, gamma=0
   
   loss <- sqrt(mean((X - xhat)^2))
   
-  # return( list(xhat=xhat, uhat=Unew, vhat=Vnew, it=it, crit.path=crit.path, est.path=est.path) )
-  return( list(xhat=xhat, uhat=Unew, vhat=Vnew, it=it, crit.path=crit.path, loss=loss) )
+  return( list(xhat=xhat, uhat=Unew, vhat=Vnew, it=it, crit.path=crit.path, est.path=est.path) )
+  # return( list(xhat=xhat, uhat=Unew, vhat=Vnew, it=it, crit.path=crit.path, loss=loss) )
 }
 
 

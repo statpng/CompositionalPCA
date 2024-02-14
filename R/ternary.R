@@ -1,3 +1,6 @@
+#' @import dplyr
+#' @import Ternary
+#' 
 #' @export loading2StartEnd
 loading2StartEnd <- function(mu,vhat){
   dir_list <- NULL
